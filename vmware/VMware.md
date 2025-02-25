@@ -86,7 +86,38 @@ It provides high availability for VMs, if any host fails, the VMs of the failed 
 It also provides HA for VMs, but without downtime. That's possible because there'll be a live shadow instance running on another host.
 
 # vSphere Distributed Resource Scheduler
+It migrates the VMs from over-utilized ESXi hosts to under-utilized ESXi hosts. It's used to balance the resources between the hosts.
+
+DRS uses vMotion to migrate the VMs. 
 
 # Single Sign-On (SSO)
+SSO is an authentication process that allows a user to access multiple applications with one set of login credentials. These applications can be, for example, vCenter Server, vCloud Director.
+
+It supports multiple identity sources like Active Directory (Microsoft) and OpenLDAP (Lightweight Directory Access Protocol) (Linux).
 
 # Virtual Machine
+A VM is a software computer that, like a physical computer, runs an operating system and applications. The VM is composed of a set of specification and configuration files and is backed by the physical resources of a host.
+
+Without VM, a single OS owns all the hardware resources. With VM, multiple OS can share the hardware resources. Each VM will see the hardware as if it were the only one using it. The hypervisor will manage the hardware resources and allocate them to the VMs.
+
+The VM key files are: configuration file (.vmx), virtual disk (.vmdk), NVRAM file (.nvram), log file (.log).
+- Configuration file (.vmx): it contains information about the VM like how many CPUs, NICs or RAM are available.
+- NVRAM file (.nvram): it contains the BIOS information. Changes in the BIOS will be saved in this file.
+- Log file (.log): it contains the logs of the VM.
+- Virtual disk (.vmdk): it contains the OS and applications.
+
+## Characteristics
+VMs have four primary characteristics:
+- **Compatibility**: VMs are compatible with all x86 computers, regardless of the operating system or hardware below it. 
+- **Isolation**: VMs are isolated from each other, so if one VM fails, the others will continue working. One VM can't see the other VMs.
+- **Encapsulation**: VMs are encapsulated into files, so they can be "easily" moved from one host to another host.
+- **Hardware Independence**: VMs are independent of the hardware, so they can be moved from one host to another host without any problem. For example, you can move a VM from a Dell server to an HP server or from Intel to AMD.
+
+## Advantages
+Using VMs has several advantages:
+- **Cloning**: the VM can be cloned to create a new VM, both exactly the same. Clones are used for testing, development, deployment, etc. You only have to create one VM and then clone it.
+- **Flexibility**: you can move the VM from one host to another host, from one storage to another storage, etc.
+- **Security**: malware can't affect the host because it's running on an isolated VM. If the VM is infected, you can delete it and create a new one.
+- **Backup**: VMs can be backed up periodically easily and them can be restored at any time.
+- **Restore**: if the VM fails, you can restore it from the backup, in the same host or in another host.
+- **Resource Utilization**: you can run multiple VMs on a single host, so you can utilize the resources of the host efficiently. That is, if you run one application on one server, you will have a lot of resources wasted. If you run multiple applications on the same server, you will utilize the resources efficiently.
