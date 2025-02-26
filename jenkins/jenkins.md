@@ -95,4 +95,87 @@ Jenkins DSLs (Domain Specific Languages) are used to define Jenkins jobs as code
 
 There is a lot more options to configure Jenkins, like setting up security, configuring Jenkins nodes, etc.
 
-## Building a Job
+## Jenkins DSL
+
+It's a plugin which enables developers to define jobs using conditional states, variables and loops. It's a way to define Jenkins jobs as code.
+- Variables: defined using `def` keyword.
+- Loops: defined using `for` keyword, e.g. number of times a job is created.
+- Branching: defined using `if` keyword, e.g. if a job is created based on a condition.
+- Functions: defined using `def` keyword, e.g. a function to create a job.
+
+Jenkins offers an API to create jobs. E.g. `job('job-name')` creates a job with the specified name (the name is the only required parameter). Jobs definition follow a XML format.
+
+### Playground
+
+It's a web application that allows you to write and test Jenkins DSL scripts. It's a great way to learn Jenkins DSL. You'll write the job in the left pane and see the XML representation of the job in the right pane.
+
+### Creating a Job
+
+Jenkins Job: a Jenkins job is a set of instructions that tells Jenkins what to do when it receives code changes from the source code repository. A Jenkins job can be created using the Jenkins UI or using Jenkins DSL.
+
+Creating a Job using Jenkins UI:
+- Click on "New Item"
+- Enter a name for the job
+- Select "Freestyle project" (general purpose job)
+- Configure the job
+  - Source Code Management: specify the source code repository (e.g. GitHub)
+  - Triggers: specify the triggers for the job (e.g. build periodically, build when a change is pushed to the repository)
+  - Build Steps: specify the build process (e.g. build, test, deploy). We choose "Process Job DSLs" and specify the DSL script.
+    - We're going to pass the DSL script, so select "Use the provided DSL script"
+- Save the job
+
+DSL script example:
+```groovy
+def jobName = 'my-first-job'
+
+job(jobName) { }
+```
+This script creates a job with the name `my-first-job`.
+
+Now, we can build the new job, pressing "Build Now" from the project page. The job will be scheduled and eventually will be successfully built. Note: it's possible we need to disable the script security in Jenkins.
+
+Now we can go the main page and see the new job. Click on it and see the job details and it was sent by the project we created.
+
+# Jenkins Roles and Configuration
+
+From "Manage Jenkins" we can go to "Users" and see the users that have access to Jenkins. There it can be created new users, delete users, change passwords, etc.
+
+Once a user log in, they can configure their profile. There are several options like the API token (useful when using Jenkins API), SSH public keys, etc.
+
+## Security
+
+By default Jenkins give to every authenticated user the "Overall" role. This role gives the user the ability to read and configure Jenkins. This isn't the ideal scenario, so it's recommended to create new roles and assign them to non admin users. For that we can download the "Role-based Authorization Strategy" plugin.
+Now we go to "Security" -> "Authorization" and select "Role-Based Strategy".
+
+There are three types of roles:
+- Global Roles: apply to all Jenkins objects (users, jobs, nodes, etc.)
+- Project/Item Roles: apply to specific jobs (pattern: match job name, user with the role can access the items with name that match the pattern)
+- Slave/Agent Roles: apply to specific nodes
+
+Now we can go to "Assign Roles" and assign roles to users. 
+
+Finally, create two projects (DevProject1 and TestProject1) and assign roles to users. Now users with developer role can only access DevProject1, because the name matches the "Dev" pattern. Same for the tester role. If we log out and log in with a user we won't see the other project.
+
+## Basic Configuration
+
+In system configuration we can set several options:
+
+**System Message**: we can set a message that will be displayed to all users when they log in. Go to "Manage Jenkins" -> "Configure System" and set the message. It follows HTML format (changing it from security settings).
+
+**\# of executors**: it's the number of concurrent jobs that can be run on the Jenkins master. It's recommended to set it to the number of cores in the machine.
+
+**Labels**: in Jenkins we have a system for distributing jobs to different nodes. We can assign labels to nodes and jobs. Labels are used to group nodes and jobs and they are used to restrict jobs to run on specific nodes. When a node is created, it's assigned a label and then it can be set to only build jobs with label match. On the other hand, we can go the job configuration and set the "Restrict where this project can be run" option to a label, this way the job will only run on nodes with that label expression.
+
+**Quiet Period**: it's the time Jenkins waits before starting a build after a change is detected. It's useful when there are multiple changes in a short period of time. It's expressed in seconds. In jobs there is a build trigger called "Poll SCM" that will check the repository for changes and if there are changes it will wait the quiet period before starting the build.
+
+**SCM Checkout Retry Count**: it's the number of times Jenkins will retry to checkout the code from the repository. It's useful when the repository is down or there are network issues.
+
+**Restrict Project Naming**: it's a regex pattern that restricts the project names. It's useful to enforce a naming convention.
+
+**Global Properties**: we can set global properties that can be used in jobs. We can set environment variables (key-value, used later with $key), etc.
+
+**Jenkins Location**: we can set the Jenkins URL and the system admin e-mail address.
+
+**Shell**: we can set the shell that Jenkins will use to run shell scripts. It can be set to the default shell or to a custom shell.
+
+## Jobs
