@@ -109,7 +109,7 @@ Jenkins offers an API to create jobs. E.g. `job('job-name')` creates a job with 
 
 It's a web application that allows you to write and test Jenkins DSL scripts. It's a great way to learn Jenkins DSL. You'll write the job in the left pane and see the XML representation of the job in the right pane.
 
-### Creating a Job
+### Creating a Job 
 
 Jenkins Job: a Jenkins job is a set of instructions that tells Jenkins what to do when it receives code changes from the source code repository. A Jenkins job can be created using the Jenkins UI or using Jenkins DSL.
 
@@ -136,7 +136,7 @@ Now, we can build the new job, pressing "Build Now" from the project page. The j
 
 Now we can go the main page and see the new job. Click on it and see the job details and it was sent by the project we created.
 
-# Jenkins Roles and Configuration
+## Jenkins Roles and Configuration
 
 From "Manage Jenkins" we can go to "Users" and see the users that have access to Jenkins. There it can be created new users, delete users, change passwords, etc.
 
@@ -147,7 +147,7 @@ Once a user log in, they can configure their profile. There are several options 
 By default Jenkins give to every authenticated user the "Overall" role. This role gives the user the ability to read and configure Jenkins. This isn't the ideal scenario, so it's recommended to create new roles and assign them to non admin users. For that we can download the "Role-based Authorization Strategy" plugin.
 Now we go to "Security" -> "Authorization" and select "Role-Based Strategy".
 
-There are three types of roles:
+There are th  ree types of roles:
 - Global Roles: apply to all Jenkins objects (users, jobs, nodes, etc.)
 - Project/Item Roles: apply to specific jobs (pattern: match job name, user with the role can access the items with name that match the pattern)
 - Slave/Agent Roles: apply to specific nodes
@@ -179,3 +179,62 @@ In system configuration we can set several options:
 **Shell**: we can set the shell that Jenkins will use to run shell scripts. It can be set to the default shell or to a custom shell.
 
 ## Jobs
+
+Checklist:
+- How to create a basic job [already covered](#creating-a-job)
+- Basic job configuration 
+- How to run a job remotely
+- How to chain a job execution
+
+There are different "**Build Triggers**" that can be used to start a job:
+- Build periodically: it's used to schedule a job to run at specific intervals. It uses the cron syntax (e.g. `H/5 * * * *` runs the job every 5 minutes and the `H` means a random minute to avoid all jobs running at the same time).
+- Poll SCM: it's used to check the repository for changes and if there are changes it will start the build. It's useful when the repository doesn't have a webhook to notify Jenkins of changes.
+
+Regarding "**Build Steps**" that can be used to define the build process. Most common is to use the "Execute shell" step to run shell commands. We can also use the "Invoke top-level Maven targets" step to run Maven commands.
+
+There are different "**Post-build Actions**" that can be used to define what to do after the build is complete. For example, we can use the "Email Notification" action to send an e-mail after the build is complete.
+
+### Dashboard fields
+
+S (State): it's the current state of the job. It can be:
+- Green: the job is successful
+- Blue: the job hasn't run yet
+- Red: the job failed
+- Yellow: the job is unstable
+- Grey: the job is disabled
+
+W (Weather): it's a weather icon that shows the health of the job. In other words, it shows how often the job fails. The more it fails, the worse the weather icon.
+
+### Triggering a Job Remotely
+
+We can trigger a job remotely using the Jenkins API. We go to the job configuration and select "Trigger builds remotely". We can set an authentication token that will be used to authenticate the request. Then with the URL `http://localhost:8080/job/<job-name>/build?token=<token-name>` we can trigger the job.
+
+Now we can use the URL to trigger the job from a script, for example from a website.
+
+### Chaining Job Execution
+
+A job execution can be chained by using the "Build other projects" post-build action. We can set the projects to build and the conditions to build them. For example, declare a job to build another job only if the current job is successful.
+
+There, it requires a list of projects to watch and a condition (if the project is stable, unstable, fails or always).
+
+Example: we have 3 jobs (Job1, Job2, Job3) and we want to chain them. We go to Job2 configuration and set the "Build Trigger" to "Build after other projects are built" and set the projects to watch to Job1 and the condition to "Successful". Then in the "Post-build Actions" of Job2 we set the "Build other projects" action to build Job3. So configuring one job we chain all the three jobs.
+
+## Integrating Jenkins with GitHub
+
+Learning objectives:
+- Create a Java program and run it through CLI
+- Create a Jenkins job to run the Java program
+- Add the program to a GitHub repository
+- Configure Jenkins to pull the program from GitHub when a change is made
+
+### Java Program
+
+We create a simple Java program that prints "Hello, Jenkins!" to the console. We create a new directory and create a new file called `HelloJenkins.java` with the following content:
+```java
+public class HelloJenkins {
+    public static void main(String[] args) {
+        System.out.println("Hello, Jenkins!");
+    }
+}
+```
+Then we compile the program using the command `javac HelloJenkins.java` and run it using the command `java HelloJenkins`.
