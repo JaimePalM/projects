@@ -238,3 +238,48 @@ public class HelloJenkins {
 }
 ```
 Then we compile the program using the command `javac HelloJenkins.java` and run it using the command `java HelloJenkins`.
+
+## Automated Deployment
+
+Software deployment has 4 main stages:
+- Build: compile the code and generate artifacts
+- Deploy: deploy the artifacts to the server (test environment)
+- Test: run tests on the deployed artifacts
+- Release: deploy the artifacts to the production server
+
+For this we'll need the "Deploy to container" plugin
+
+### Deploy to Container Plugin
+
+Create a build job. 
+  1. Download a sample war (this is a Java web application) file from the tomcat website.
+  2. Add any build step (e.g. execute shell) and as post build action select "Deploy war/ear to a container".
+  3. Add the war file with `**/*.war` and as context path `sample.war`.
+  4. Select Tomcat 9.x for the container. 
+     1. Download and Install Tomcat with an admin user.
+     2. Put the credentials in the Jenkins configuration.
+  5. Save and build the job.
+
+If we go to the Tomcat server we can see the application deployed (http://localhost:8090/sample.war).
+
+### Notifications
+
+We can configure Jenkins to send e-mail notifications when a build fails. We go to "Manage Jenkins" -> "Configure System" and set the SMTP server. Then we go to the job configuration and set the "Post-build Actions" to "E-mail Notification". 
+
+There it requires a SMTP server (e.g. smpt.gmail.com), the sender e-mail address, its password (use a token) and check SSL.
+
+Now in the post-build actions we can set the recipients e-mail addresses and the conditions to send the e-mail (e.g. always, unstable, etc.). Therefore, there are some plugins to enhance the e-mail notifications, like Extreme Notification or Email extension plugins.
+
+### Pipelines
+
+They are a way to define the build process as code. Pipeline is a workflow with a group of events or jobs that are chained and integrated with each other in sequence. Pipelines can be defined using a Jenkinsfile. A Jenkinsfile is a text file written in Groovy that contains the definition of the build process.
+
+Delivery Pipeline: we'are going to simulate a real case so create three simple jobs (Build, Test and Deploy). Now we can chain the jobs using the build trigger "Build after other projects are built". Then install the "Delivery Pipeline Plugin" and create a new view with the three jobs. Now we can create a new view with the plugin. At the end, we'll configure the components of the pipeline (initial job).
+
+There are some interesting options like "Enable start of new pipeline build" that will trigger the pipeline directly from the view and see the progress of the pipeline. We can also set the "Enable rebuild" option to rebuild an specific job in the pipeline (without rebuilding the whole pipeline).
+
+Build Pipeline: it's a way to visualize the build process. We can install the "Build Pipeline Plugin" and create a new view with the jobs. We can drag and drop the jobs to create the pipeline. 
+
+The difference between the two plugins is that the Delivery Pipeline Plugin is more focused on showing the progress of the pipeline and the Build Pipeline Plugin is more focused on managing the pipeline (it's more interactive).
+
+## Tips & Tricks
