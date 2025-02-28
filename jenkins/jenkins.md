@@ -283,3 +283,57 @@ Build Pipeline: it's a way to visualize the build process. We can install the "B
 The difference between the two plugins is that the Delivery Pipeline Plugin is more focused on showing the progress of the pipeline and the Build Pipeline Plugin is more focused on managing the pipeline (it's more interactive).
 
 ## Tips & Tricks
+
+### Parameterize jobs
+
+Create a new job and go to the configuration. There we can set the "This project is parameterized" option and add a parameter. We can set the parameter type (e.g. string, boolean, etc.) and the default value. For example, we can create a string parameter and set the name and value. If we set a build step to run a shell and print the parameter, we can see the value of the parameter (`echo %name%`). Then build with parameters and see the output.
+
+### Run jobs from CLI
+
+In "Manage Jenkins" section, there is the "Jenkins CLI" where instructions are given to download the CLI. Just click the `jenkins-cli.jar` link and save it. Then we can see the documentation for each option. Every time we want to run a command we should use the following command:
+```bash
+java -jar jenkins-cli.jar -s http://localhost:8080 <options>
+```
+For running the CLI user must be authenticated or Jenkins be configured for "Anyone can do anything". If we want to authenticate we can use the `--username` and `--password` options.
+
+For example we can build the previous job with parameters using the command:
+```bash
+java -jar jenkins-cli.jar -s http://localhost:8080 build ParameterJob -s -v
+```
+Where `ParameterJob` is the job name and `-s -v` is the option to wait for the job to finish and to see the output.
+
+For running a parameterized job we can use the `-p` option:
+```bash
+java -jar jenkins-cli.jar -s http://localhost:8080 build ParameterJob -s -v -p name=Jenkins
+```
+Where `name` is the parameter name and `Jenkins` is the value.
+
+### Checkboxes, Radio Buttons and Dropdowns
+
+Different types of parameters can be set in the job configuration. In this case we can set a choice parameter defined by checkboxes, radio buttons or dropdowns. 
+
+For that it's necessary to install the "Extended Choice Parameter" plugin. Then we can go to the job configuration and set the parameter type to "Extended Choice Parameter". Then we can set the type in "Basic Parameter Types" and see all the commented options. 
+
+For example, we can set the type to "Radio Buttons". Now, there are some options like the number of visible items, the delimiter and the source of the values. We can set the values manually or use a script to get the values. Then we can print the value in a shell script.
+
+### Pass parameters to downstream jobs
+
+We can pass parameters to downstream jobs using the "Parameterized Trigger Plugin". Then create a new job which will be triggered by the previous job and pass the parameters. 
+
+In the post-build actions of the trigger job we can set the "Trigger parameterized build on other projects" action. There we can set the project to build and the parameters to pass. The most simple is "Predefined parameters" where we can set the parameters and values.
+
+### Build Monitor Plugin
+
+This plugin is used to monitor the status of the jobs. Download and install the plugin. Then create a new view and set the "Build Monitor View". 
+
+There we can filter the jobs we want to see and more options. Once it's configured we can see the view with the jobs and their status.
+
+## Jenkins on Tomcat
+
+Jenkin's on its own is a standalone application running in jetty/winstone server.
+
+Why deploy Jenkins on Tomcat?
+Unified deployment platform. We could have multiple applications running on the same server. Tomcat is a widely used application server.
+
+For deploy Jenkins on Tomcat we need to download the Jenkins war file from the Jenkins website. Then we need to download the Tomcat server and install it. Put the Jenkins war file in the `webapps` folder of Tomcat and start the server. Now we can access Jenkins from the Tomcat server, accessing the URL `http://localhost:8090/jenkins`.
+
