@@ -336,4 +336,3 @@ Why deploy Jenkins on Tomcat?
 Unified deployment platform. We could have multiple applications running on the same server. Tomcat is a widely used application server.
 
 For deploy Jenkins on Tomcat we need to download the Jenkins war file from the Jenkins website. Then we need to download the Tomcat server and install it. Put the Jenkins war file in the `webapps` folder of Tomcat and start the server. Now we can access Jenkins from the Tomcat server, accessing the URL `http://localhost:8090/jenkins`.
-
