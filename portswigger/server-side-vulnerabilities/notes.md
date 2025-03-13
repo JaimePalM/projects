@@ -42,3 +42,32 @@ In some cases, the application server is able to interact with back-end systems 
 
 In the previous example, imagine there is an administrative interface at the back-end URL `https://192.168.0.68/admin`.
 
+### Scanning through API URL
+
+If the website uses an API for several purposes, it is possible to scan through the API URLs to see if any of the IP hosts are reachable. For example, if the API is reachable at `https://192.168.0.1:8080/checkStock?id=2`, then the website might be able to access the back-end API at some host at `https://192.168.0.X:8080/admin`. Scan by brute-forcing the IP addresses and once you discover the back-end API, you can then send admin API requests to the back-end API.
+
+## File Upload Vulnerability
+
+File upload vulnerabilities are when a web server allows users to upload files to its filesystem without sufficiently validating things like their name, type, contents, or size. A basic image upload function can be used to upload arbitrary and potentially dangerous files instead. This could even include server-side script files that enable remote code execution.
+
+### Introduction
+
+From a security perspective, the worst possible scenario is when a website allows you to upload server-side scripts, such as PHP, Java, or Python files, and is also configured to execute them as code. This makes it trivial to create your own web shell (command through HTTP requests) on the server.
+
+For example, the following PHP one-line file could be used to read arbitrary files from the server's filesystem:
+```php
+<?php echo file_get_contents('/path/to/target/file'); ?>
+```
+
+Once uploaded, sending a request for this malicious file will return the target file's contents in the response.
+
+A more versatile web shell may look something like this:
+```php
+<?php echo system($_GET['command']); ?>
+```
+This script enables you to pass an arbitrary system command via a query parameter as follows:
+```http
+GET /example/exploit.php?command=id HTTP/1.1
+```
+
+### Bypass Validation
