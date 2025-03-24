@@ -1,3 +1,8 @@
+---
+title: Server-Side Vulnerabilities
+description: Portswigger Server-Side Vulnerabilities
+---
+
 # Access Control
 
 ## Horizontal Privilege Escalation
@@ -71,3 +76,94 @@ GET /example/exploit.php?command=id HTTP/1.1
 ```
 
 ### Bypass Validation
+
+There are two ways to send information to the server:
+- `application/x-www-form-urlencoded`: the information is sent in the request body as name=value pairs.
+- `multipart/form-data`: the information is sent in the request body as a multipart/form-data object. The data is splitted into fields and it can be a binary file (image, audio, video, etc.) or text.
+
+
+Example of `multipart/form-data`:
+
+```http
+POST /images HTTP/1.1
+    Host: normal-website.com
+    Content-Length: 12345
+    Content-Type: multipart/form-data; boundary=---------------------------012345678901234567890123456
+
+    ---------------------------012345678901234567890123456
+    Content-Disposition: form-data; name="image"; filename="example.jpg"
+    Content-Type: image/jpeg
+
+    [...binary content of example.jpg...]
+
+    ---------------------------012345678901234567890123456
+    Content-Disposition: form-data; name="description"
+
+    This is an interesting description of my image.
+
+    ---------------------------012345678901234567890123456
+    Content-Disposition: form-data; name="username"
+
+    wiener
+    ---------------------------012345678901234567890123456--
+```
+
+One way that websites may attempt to validate file uploads is to check that this input-specific `Content-Type` header matches an expected MIME type. If the server is only expecting image files, for example, it may only allow types like `image/jpeg` and `image/png`. Problems can arise when the value of this header is implicitly trusted by the server. If no further validation is performed to check whether the contents of the file actually match the supposed MIME type, this defense can be easily bypassed.
+
+Web pages can be configured to only allow image files to be uploaded. However, sometimes this validation is done on the client-side. In this case, the client-side validation is bypassed intercepting the request from the server and changing the `Content-Type` header to something acceptable, such as `image/jpeg` or `image/png`.
+
+## OS Command Injection
+
+It allows an attacker to execute operating system (OS) commands on the server that is running an application, and typically fully compromise the application and its data. Often, an attacker can leverage an OS command injection vulnerability to compromise other parts of the hosting infrastructure, and exploit trust relationships to pivot the attack to other systems within the organization.
+
+In other words, the server passes client parameters to a server shell, and the attacker can inject a command as parameter into a web page, and the server executes the command as the user running the web server.
+
+Some useful commands are:
+| Purpose of command    | Linux     | Windows |
+| ---                   | ---       | --- |
+| Name of current user  | whoami    | whoami
+| Operating system      | uname -a  | ver
+| Network configuration | ifconfig  | ipconfig /all
+| Network connections   | netstat -an | netstat -an
+| Running processes     | ps -ef    |  asklist
+
+In this example, a shopping application lets the user view whether an item is in stock in a particular store. This information is accessed via a URL:
+```url
+https://insecure-website.com/stockStatus?productID=381&storeID=29
+```
+To provide the stock information, the application must query various legacy systems. For historical reasons, the functionality is implemented by calling out to a shell command with the product and store IDs as arguments: `stockreport.pl 381 29`. This command outputs the stock status for the specified item, which is returned to the user.
+
+The application implements no defenses against OS command injection, so an attacker can submit the following input to execute an arbitrary command: `& echo aiwefwlguh &`. If this input is submitted in the `productID` parameter, the command executed by the application is:
+`stockreport.pl & echo aiwefwlguh & 29`
+
+Placing the additional command separator `&` after the injected command is useful because it separates the injected command from whatever follows the injection point. This reduces the chance that what follows will prevent the injected command from executing.
+
+Regarding the payload to bypass the arguments, there are lots of ways to do it. For example, the "&", "|", ";", "<", ">", and "&&" characters can be used to separate the command and the arguments. In this repository it can be found more: http://github.com/payloadbox/command-injection-payload-list 
+
+## SQL Injection (SQLi)
+
+As the name suggests, SQL injection is a vulnerability that allows an attacker to inject SQL commands into a database. The attacker can use this vulnerability to read, modify, or delete data in the database. The idea is the same as the command injection vulnerability, but the SQL commands are used instead.
+
+Typically:
+- The single quote character `'` and look for errors or other anomalies.
+- Some SQL-specific syntax that evaluates to the base (original) value of the entry point, and to a different value, and look for systematic differences in the application responses.
+- Boolean conditions such as `OR 1=1` and `OR 1=2`, and look for differences in the application's responses.
+- Payloads designed to trigger time delays when executed within a SQL query, and look for differences in the time taken to respond.
+- OAST (Open Application Security Testing) payloads designed to trigger an out-of-band network interaction when executed within a SQL query, and monitor any resulting interactions
+
+Injection example:
+The web shop uses the URL `https://insecure-website.com/products?category=Gifts` and internally makes the following SQL query: `SELECT * FROM products WHERE category = 'Gifts' AND released = 1` because they don't want to show the existing products which aren't released. If we input as category `Gifts' --` the SQL query becomes `SELECT * FROM products WHERE category = 'Gifts' --' AND released = 1` and because of `--` is a SQL comment, this way bypasses the released filter.
+
+> Warning
+> 
+> Take care when injecting the condition `OR 1=1` into a SQL query. Even if it appears to be harmless in the context you're injecting into, it's common for applications to use data from a single request in multiple different queries. If your condition reaches an `UPDATE` or `DELETE` statement, for example, it can result in an accidental loss of data.
+
+One example to bypass the `WHERE` condition, modify the URL, after the value add `+OR+1=1--`. The `+` is decoded as a space, so the SQL query becomes:
+```sql
+SELECT * FROM products WHERE category = 'Gifts' OR 1=1--' AND released = 1
+```
+ 
+We also can use this to bypass logins and validate as any user. Where username field is `administrator'--`
+```sql
+SELECT * FROM users WHERE username = 'administrator'--' AND password = ''
+```

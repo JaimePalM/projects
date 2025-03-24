@@ -1,0 +1,23 @@
+POST https://0adf00ea03a1150e925bf5db004b00d3.web-security-academy.net/product/stock HTTP/1.1
+host: 0adf00ea03a1150e925bf5db004b00d3.web-security-academy.net
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0
+Accept: */*
+Accept-Language: es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3
+Referer: https://0adf00ea03a1150e925bf5db004b00d3.web-security-academy.net/product?productId=1
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 96
+Origin: https://0adf00ea03a1150e925bf5db004b00d3.web-security-academy.net
+Connection: keep-alive
+Cookie: session=4PQAlPojM5128TVwNaYuuY9yAzYVJzQT
+Sec-Fetch-Dest: empty
+Sec-Fetch-Mode: cors
+Sec-Fetch-Site: same-origin
+Priority: u=1
+
+stockApi=http%3A%2F%2F192.168.0.1%3A8080HTTP/1.1 200 OK
+Content-Type: text/plain; charset=utf-8
+Connection: close
+X-Frame-Options: SAMEORIGIN
+Content-Length: 3
+
+920
