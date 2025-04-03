@@ -44,17 +44,6 @@ func main() {
 	phrase = append(phrase, "is", "Mark")
 	fmt.Println(phrase, "Length:", len(phrase))
 
-	// POINTERS
-	m1 := 15
-	var ptr *int
-	ptr = &m1
-	fmt.Println(ptr)  // ptr holds the memory address of m1
-	fmt.Println(*ptr) // *ptr holds the value of m1
-	m2 := 20
-	fmt.Println(m1, m2)
-	swap(&m1, &m2)
-	fmt.Println(m1, m2)
-
 	// STRUCTS
 	p1 := Person{"Mark", 36}
 	fmt.Println(p1)
@@ -62,6 +51,7 @@ func main() {
 	p1.age = 25
 	fmt.Println(p1)
 	p1.Info()
+
 }
 
 func swap(m1, m2 *int) {

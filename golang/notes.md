@@ -89,3 +89,128 @@ func (p Person) sayHello() {
     fmt.Println("Hello, my name is", p.name) 
 }
 ```
+
+### Interfaces
+
+An interface is a set of methods. It's useful to define a common behavior for a set of types. To declare an interface, use:
+
+```go
+type <name> interface {
+    <method>(<parameters>) <return type>
+    <method>(<parameters>) <return type>
+    ...
+}
+```
+
+Inside the file we can define data types and the behavior of the functions defined in the interface. We can define the same function with different parameters and return types.
+
+One method to ensure that all the structures implement the interface methods is using a code like this:
+
+```go
+func New<name>(arg) <name> {
+  return &<structName>{arg}
+}
+```
+
+If we create a new interface object and return it as a pointer to the struct, Go will check if the struct implements the interface methods and if not, it will panic.
+
+**Empty interface**
+
+An empty interface is a type that can hold any value. It's a black box. This is very helpful when we are talking about development because there most of the time you don't know what type of data you are going to receive.
+
+```go
+interface {}
+
+func Anything(anything interface{}) {
+  fmt.Println(anything)
+}
+```
+
+For example we can use this for maps, telling tha the key is a string and the value can be any type.
+
+```go
+mymap := make(map[string]interface{})
+
+mymap["name"] = "John"
+mymap["age"] = 30
+
+fmt.Println(mymap)
+```
+
+### Control Structures
+
+The main control structures in Go are:
+
+- `if <condition> { <code> }`
+- `if <condition> { <code> } else { <code> }`
+- `if <condition> { <code> } else if <condition> { <code> } else { <code> }`
+- `switch <expression> { case <value>: <code> ... default: <code> }`
+- `for <condition> { <code> }`
+- `while <condition> { <code> }`
+- `do { <code> } while <condition>`
+- `break`
+- `continue`
+
+Note Go doesn't use parentheses in the conditions.
+
+`switch` can also be defined without the expression, e.g. `switch { case <expression>: <code> ... default: <code> }`. In this case, the expression is the condition defined in the case statement.
+
+## Concurrency
+
+Concurrency is the ability to execute multiple tasks or processes at the same time. It is a way to improve the performance of a program by using multiple cores or threads.
+
+### Introduction
+
+Golang processes don't run on threads but on goroutines. A goroutine is a light-weight thread of execution.
+
+### Synchronous vs Asynchronous
+
+The main difference between synchronous and asynchronous programming is that synchronous programming is executed in a sequential order, while asynchronous programming is executed in parallel.
+
+### Goroutines
+
+A goroutine is a light-weight thread of execution. It is a function that can be executed concurrently with other goroutines.
+
+To create a goroutine, use `go <function>()`. For example: `go sayHello("John")`. This will run the function in a separate goroutine, in the background. For example if we run a goroutine with a sleep, the main goroutine will continue to run while the goroutine is sleeping. Or if we have a `print` in the gorutine after the `sleep`, it won't be printed through the console because the main goroutine has already finished.
+
+**Waitgroups**
+
+To avoid this we can use `waitgroups` to wait for the goroutine to finish. For example: `wg.Wait()`. This will wait for all the goroutines to finish before continuing the main goroutine.
+
+To define a waitgroup, we must declare three functions: `add`, `done` and `wait`. The `add` function is used to add a goroutine to the waitgroup, the `done` function is used to notify that the goroutine has finished, and the `wait` function is used to wait for all the goroutines to finish.
+
+```go	
+wg := &sync.WaitGroup{}
+
+wg.Add(1)   // Add 1 to the WaitGroup
+go func() {
+  fmt.Println("Hello, World!")
+  wg.Done() // Notify that the goroutine has finished
+}
+wg.Wait()   // Wait for all the goroutines to finish
+```
+
+Waits can be used to control the synchronization of goroutines. However, if we want to control the manipulation of a shared resource, we can use mutexes.
+
+**Mutexes**
+
+A mutex is a lock that is used to control the access to a shared resource. It is useful when we want to control the access to a shared resource. For example:
+
+```go
+mutex := &sync.Mutex{}
+mutex.Lock()
+go func() {
+  // Do something with the shared resource
+}()
+mutex.Unlock()
+```
+
+**Lambda Functions**
+
+Lambda functions are functions without a name. They are useful when we want to create a function that is only used once. For example: 
+
+```go
+func() { 
+  fmt.Println("Hello, World!") 
+  }()
+```
